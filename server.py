@@ -111,8 +111,9 @@ def index():
   #
   cursor = g.conn.execute("SELECT t_name FROM teams")
   names = []
+  names.append(["Team Name"])
   for result in cursor:
-    names.append(result['t_name'])  # can also be accessed using result[0]
+    names.append(result)  # can also be accessed using result[0]
   cursor.close()
 
   #
