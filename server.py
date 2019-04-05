@@ -24,7 +24,8 @@ app = Flask(__name__, template_folder=tmpl_dir)
 
 
 #
-# The following is a dummy URI that does not connect to a valid database. You will need to modify it to connect to your Part 2 database in order to use the data.
+# The following is a dummy URI that does not connect to a valid database. You will need to modify it to connect
+# to your Part 2 database in order to use the data.
 #
 # XXX: The URI should be in the format of: 
 #
@@ -34,7 +35,7 @@ app = Flask(__name__, template_folder=tmpl_dir)
 #
 #     DATABASEURI = "postgresql://biliris:foobar@104.196.18.7/w4111"
 #
-DATABASEURI = "postgresql://user:password@104.196.18.7/w4111"
+DATABASEURI = "postgresql://iaw2110:ivanrohan@104.196.18.7/w4111"
 
 
 #
@@ -44,14 +45,9 @@ engine = create_engine(DATABASEURI)
 
 #
 # Example of running queries in your database
-# Note that this will probably not work if you already have a table named 'test' in your database, containing meaningful data. This is only an example showing you how to run queries in your database using SQLAlchemy.
+# Note that this will probably not work if you already have a table named 'test' in your database,
+# containing meaningful data. This is only an example showing you how to run queries in your database using SQLAlchemy.
 #
-engine.execute("""CREATE TABLE IF NOT EXISTS test (
-  id serial,
-  name text
-);""")
-engine.execute("""INSERT INTO test(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');""")
-
 
 @app.before_request
 def before_request():
@@ -113,10 +109,10 @@ def index():
   #
   # example of a database query
   #
-  cursor = g.conn.execute("SELECT name FROM test")
+  cursor = g.conn.execute("SELECT t_name FROM teams")
   names = []
   for result in cursor:
-    names.append(result['name'])  # can also be accessed using result[0]
+    names.append(result['t_name'])  # can also be accessed using result[0]
   cursor.close()
 
   #
@@ -162,10 +158,17 @@ def index():
 # Notice that the function name is another() rather than index()
 # The functions for each app.route need to have different names
 #
+@app.route('/refresh')
+def refresh():
+  return redirect('/')
+
+@app.route('/index')
+def ind():
+  return render_template("index.html")
+
 @app.route('/another')
 def another():
   return render_template("another.html")
-
 
 # Example of adding new data to the database
 @app.route('/add', methods=['POST'])
