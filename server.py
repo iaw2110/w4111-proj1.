@@ -34,7 +34,7 @@ app = Flask(__name__, template_folder=tmpl_dir)
 #
 #     DATABASEURI = "postgresql://biliris:foobar@104.196.18.7/w4111"
 #
-DATABASEURI = "postgresql://iaw2110:ivanrohan@34.73.21.127/proj1part2"
+DATABASEURI = "postgresql://iaw2110:ivanrohan@104.196.18.7/w4111"
 
 
 #
@@ -94,6 +94,8 @@ def teardown_request(exception):
 # see for routing: http://flask.pocoo.org/docs/0.10/quickstart/#routing
 # see for decorators: http://simeonfranklin.com/blog/2012/jul/1/python-decorators-in-12-steps/
 #
+@app.route('/')
+def index():
   """
   request is a special object that Flask provides to access web request information:
 
@@ -103,9 +105,19 @@ def teardown_request(exception):
 
   See its API: http://flask.pocoo.org/docs/0.10/api/#incoming-request-data
   """
+
   # DEBUG: this is debugging code to see what request looks like
   print request.args
 
+
+  #
+  # example of a database query
+  #
+  cursor = g.conn.execute("SELECT name FROM test")
+  names = []
+  for result in cursor:
+    names.append(result['name'])  # can also be accessed using result[0]
+  cursor.close()
 
   #
   # Flask uses Jinja templates, which is an extension to HTML where you can
@@ -133,13 +145,15 @@ def teardown_request(exception):
   #     <div>{{n}}</div>
   #     {% endfor %}
   #
+  context = dict(data = names)
 
 
   #
   # render_template looks in the templates/ folder for files.
   # for example, the below file reads template/index.html
   #
-  
+  return render_template("index.html", **context)
+
 #
 # This is an example of a different path.  You can see it at:
 # 
@@ -152,19 +166,6 @@ def teardown_request(exception):
 def another():
   return render_template("another.html")
 
-@app.route('/')
-def index():
-  cursor = g.conn.execute("SELECT P.p_name, P.t_name, S.games_played, S.goals, S.assists, S.points, S.plus_minus, S.penalty_minutes, S.minutes, S.blocks, S.hits, S.faceoff_percentage, S.goals_against, S.shots_against, S.saves, S.save_percentage FROM players P LEFT OUTER JOIN player_statistics PS ON P.p_name = PS.p_name LEFT OUTER JOIN statistics S ON S.s_id = PS.s_id")
-
-  names = []
-  names.append(["Name", "Team Name", "Games Played", "Goals", "Assists", "Points", "Plus/Minus", "Penalty Minutes", "Minutes on the Ice", "Blocks", "Hits", "Faceoff Percentage", "Goals Against", "Shots Against", "Saves", "Save Percentage"])
-  for result in cursor:
-    names.append(result)
-  cursor.close()
-  context = dict(data = names)
-
-
-  return render_template("index.html", **context)
 
 # Example of adding new data to the database
 @app.route('/add', methods=['POST'])
