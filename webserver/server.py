@@ -171,6 +171,7 @@ def add():
 
 @app.route('/')
 def index():
+
   cursor = g.conn.execute("SELECT P.p_name, P.t_name, S.games_played, S.goals, S.assists, S.points, S.plus_minus, S.penalty_minutes, S.minutes, S.blocks, S.hits, S.faceoff_percentage, S.goals_against, S.shots_against, S.saves, S.save_percentage FROM players P LEFT OUTER JOIN player_statistics PS ON P.p_name = PS.p_name LEFT OUTER JOIN statistics S ON S.s_id = PS.s_id")
 
   names = []
@@ -181,6 +182,13 @@ def index():
   context = dict(data = names)
 
   return render_template("index.html", **context)
+
+@app.route('/stat', methods=['POST'])
+def organize():
+  name = request.form['name']
+  print(name)
+  return render_template("index.html", **context)      
+  
 
 @app.route('/hometown', methods=['POST'])
 def hometown():
@@ -246,8 +254,9 @@ def info():
 @app.route('/team', methods=['POST'])
 def team():
   name = request.form['name']
+  name = name + '%'
   if (name != ''):
-    cursor = g.conn.execute("SELECT T.t_name, P.p_name, P.position, P.salary, P.date_of_birth FROM players P LEFT OUTER JOIN teams T ON P.t_name = T.t_name WHERE T.t_name = %(name)s", {'name': name})
+    cursor = g.conn.execute("SELECT T.t_name, P.p_name, P.position, P.salary, P.date_of_birth FROM players P LEFT OUTER JOIN teams T ON P.t_name = T.t_name WHERE T.t_name LIKE %(name)s", {'name': name})
     names = []
     names.append(["Team Name", "Player Name", "Position", "Salary", "Date of Birth"])
     for result in cursor:
