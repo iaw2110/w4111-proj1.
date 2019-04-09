@@ -183,19 +183,48 @@ def index():
 
   return render_template("index.html", **context)
 
-@app.route('/stat', methods=['POST'])
-def organize():
-  name = request.form['name']
-  print(name)
+@app.route('/goals', methods=['POST'])
+def goals():
+  cursor = g.conn.execute("SELECT P.p_name, S.goals FROM players P LEFT OUTER JOIN player_statistics PS ON P.p_name = PS.p_name LEFT OUTER JOIN statistics S on S.s_id = PS.s_id GROUP BY P.p_name, S.goals ORDER BY S.goals DESC")
+  names = []
+  names.append(["Player Name", "Goals"])
+  for result in cursor:
+    names.append(result)
+  cursor.close()
+  context = dict(data = names)
+
   return render_template("index.html", **context)      
   
+@app.route('/plusminus', methods=['POST'])
+def plusminus():
+  cursor = g.conn.execute("SELECT P.p_name, S.plus_minus FROM players P LEFT OUTER JOIN player_statistics PS ON P.p_name = PS.p_name LEFT OUTER JOIN statistics S on S.s_id = PS.s_id GROUP BY P.p_name, S.plus_minus ORDER BY S.plus_minus DESC")
+  names = []
+  names.append(["Player Name", "Plus/Minus"])
+  for result in cursor:
+    names.append(result)
+  cursor.close()
+  context = dict(data = names)
+
+  return render_template("index.html", **context)
+
+@app.route('/saves', methods=['POST'])
+def saves():
+  cursor = g.conn.execute("SELECT P.p_name, S.saves FROM players P LEFT OUTER JOIN player_statistics PS ON P.p_name = PS.p_name LEFT OUTER JOIN statistics S on S.s_id = PS.s_id GROUP BY P.p_name, S.saves ORDER BY S.saves DESC")
+  names = []
+  names.append(["Player Name", "Saves"])
+  for result in cursor:
+    names.append(result)
+  cursor.close()
+  context = dict(data = names)
+
+  return render_template("index.html", **context)
 
 @app.route('/hometown', methods=['POST'])
 def hometown():
   name = request.form['name']
-  print(name)
+  name = name + '%'
   if (name != ''):
-    cursor =  g.conn.execute("SELECT P.p_name, A.city, A.country FROM players P LEFT OUTER JOIN addresses A ON P.ad_id = A.ad_id WHERE A.city = %(name)s", {'name': name}) 
+    cursor =  g.conn.execute("SELECT P.p_name, A.city, A.country FROM players P LEFT OUTER JOIN addresses A ON P.ad_id = A.ad_id WHERE A.city LIKE %(name)s", {'name': name}) 
     names = []
     names.append(["Player Name", "City", "Country"])
     for result in cursor:
@@ -210,10 +239,11 @@ def hometown():
   return render_template("index.html", **context)
 
 @app.route('/conference', methods=['POST'])
-def division():
+def conference():
   name = request.form['name']
+  name = name + '%'
   if (name != ''):
-    cursor = g.conn.execute("SELECT P.p_name, C.con_name FROM players P LEFT OUTER JOIN teams T ON P.t_name = T.t_name LEFT OUTER JOIN conferences C ON T.con_name = C.con_name WHERE C.con_name = %(name)s", {'name': name})
+    cursor = g.conn.execute("SELECT P.p_name, C.con_name FROM players P LEFT OUTER JOIN teams T ON P.t_name = T.t_name LEFT OUTER JOIN conferences C ON T.con_name = C.con_name WHERE C.con_name LIKE %(name)s", {'name': name})
     names = []
     names.append(["Player Name", "Conference"])
     for result in cursor:
