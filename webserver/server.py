@@ -148,31 +148,130 @@ def teardown_request(exception):
 # Notice that the function name is another() rather than index()
 # The functions for each app.route need to have different names
 #
+@app.route('/home')
+def home():
+  return redirect('/')
+
 @app.route('/another')
 def another():
-  return render_template("another.html")
+  cursor = g.conn.execute("SELECT A.city FROM addresses A")
+  names = []
+  names.append(["City"])
+  for result in cursor:
+    names.append(result)
+  cursor.close()
+  context = dict(data = names)
+  return render_template("another.html", **context)
+
+@app.route('/another', methods=['POST'])
+def add():
+  name = request.form['name']
+  g.conn.execute("INSERT INTO addresses (ad_id, country, state_province, city) VALUES ((SELECT MAX(ad_id) + 1 FROM addresses), NULL, NULL, %(name)s)", {'name': name})
+  return redirect('/another')
 
 @app.route('/')
 def index():
   cursor = g.conn.execute("SELECT P.p_name, P.t_name, S.games_played, S.goals, S.assists, S.points, S.plus_minus, S.penalty_minutes, S.minutes, S.blocks, S.hits, S.faceoff_percentage, S.goals_against, S.shots_against, S.saves, S.save_percentage FROM players P LEFT OUTER JOIN player_statistics PS ON P.p_name = PS.p_name LEFT OUTER JOIN statistics S ON S.s_id = PS.s_id")
 
   names = []
-  names.append(["Name", "Team Name", "Games Played", "Goals", "Assists", "Points", "Plus/Minus", "Penalty Minutes", "Minutes on the Ice", "Blocks", "Hits", "Faceoff Percentage", "Goals Against", "Shots Against", "Saves", "Save Percentage"])
+  names.append(["Player Name", "Team Name", "Games Played", "Goals", "Assists", "Points", "Plus/Minus", "Penalty Minutes", "Minutes on the Ice", "Blocks", "Hits", "Faceoff Percentage", "Goals Against", "Shots Against", "Saves", "Save Percentage"])
   for result in cursor:
     names.append(result)
   cursor.close()
   context = dict(data = names)
 
+  return render_template("index.html", **context)
+
+@app.route('/hometown', methods=['POST'])
+def hometown():
+  name = request.form['name']
+  print(name)
+  if (name != ''):
+    cursor =  g.conn.execute("SELECT P.p_name, A.city, A.country FROM players P LEFT OUTER JOIN addresses A ON P.ad_id = A.ad_id WHERE A.city = %(name)s", {'name': name}) 
+    names = []
+    names.append(["Player Name", "City", "Country"])
+    for result in cursor:
+      names.append(result)
+    cursor.close()
+    context = dict(data = names)
+
+  else:
+    names = []
+    context = dict(data = names)
 
   return render_template("index.html", **context)
 
-# Example of adding new data to the database
-@app.route('/add', methods=['POST'])
-def add():
+@app.route('/conference', methods=['POST'])
+def division():
   name = request.form['name']
-  g.conn.execute('INSERT INTO test VALUES (NULL, ?)', name)
-  return redirect('/')
+  if (name != ''):
+    cursor = g.conn.execute("SELECT P.p_name, C.con_name FROM players P LEFT OUTER JOIN teams T ON P.t_name = T.t_name LEFT OUTER JOIN conferences C ON T.con_name = C.con_name WHERE C.con_name = %(name)s", {'name': name})
+    names = []
+    names.append(["Player Name", "Conference"])
+    for result in cursor:
+      names.append(result)
+    cursor.close()
+    context = dict(data = names)
 
+  else:
+    names = []
+    context = dict(data = names)
+  
+  return render_template("index.html", **context)
+
+@app.route('/years', methods=['GET'])
+def years():
+  cursor = g.conn.execute("SELECT T.t_name, T.year_established FROM teams T ORDER BY T.year_established ASC")
+  names = []
+  names.append(["Team Name", "Year Established"])
+  for result in cursor:
+    names.append(result)
+  cursor.close()
+  context = dict(data = names)
+ 
+  return render_template("index.html", **context)
+
+@app.route('/info', methods=['GET'])
+def info():
+  cursor = g.conn.execute("SELECT T.t_name, T.salary_cap, T.owner_name, C.c_name, T.number_of_wins, T.number_of_losses, T.overtime_losses, T.points, T.con_name FROM teams T LEFT OUTER JOIN coaches C ON T.t_name = C.t_name")
+  names = []
+  names.append(["Team Name", "Salary Cap", "Owner Name", "Coach Name", "# of Wins", "# of Losses", "# of Overtime Losses", "Points",  "Conference Name"])
+  for result in cursor:
+    names.append(result)
+  cursor.close()
+  context = dict(data = names)
+
+  return render_template("index.html", **context)
+
+@app.route('/team', methods=['POST'])
+def team():
+  name = request.form['name']
+  if (name != ''):
+    cursor = g.conn.execute("SELECT T.t_name, P.p_name, P.position, P.salary, P.date_of_birth FROM players P LEFT OUTER JOIN teams T ON P.t_name = T.t_name WHERE T.t_name = %(name)s", {'name': name})
+    names = []
+    names.append(["Team Name", "Player Name", "Position", "Salary", "Date of Birth"])
+    for result in cursor:
+      names.append(result)
+    cursor.close()
+    context = dict(data = names)
+
+  else:
+    names = []
+    context = dict(data = names)
+
+  return render_template("index.html", **context)
+
+@app.route('/arenas', methods=['GET'])
+def arenas():
+  cursor = g.conn.execute("SELECT T.t_name, A.a_name, A.capacity FROM teams T LEFT OUTER JOIN arenas A ON T.a_name = A.a_name")
+  names = []
+  names.append(["Team Name", "Arena Name", "Arena Capacity"])
+  for result in cursor:
+    names.append(result)
+  cursor.close()
+  context = dict(data = names)
+
+  return render_template("index.html", **context)
 
 @app.route('/login')
 def login():

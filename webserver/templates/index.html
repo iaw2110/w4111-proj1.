@@ -1,28 +1,76 @@
 <html>
-  <style>
-    body{ 
-      font-size: 15pt;
-      font-family: arial;
-    }
-  </style>
+  <head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <style>
 
+      h1 {
+        text-align: center;
+      }
 
+      p {
+        text-align: left;
+      }
+
+      table, td, th{
+        border:1px solid #000000
+      }
+
+      table {
+        border-collapse: collapse;
+        width:75%;
+      }
+
+      td, td {
+        padding: 5px;
+      }
+    </style>
+  </head>
+  
 <body>
-  <h1>Hockey Data</h1>
-  <div>{{data}}</div>
-
-  <div>
-    {% for n in data %}
-    <div>{{n}}</div>
-    {% endfor %}
-  </div>
-
-<p><a href="another">Go to the other page</a></p>
-
-<form method="POST" action="/add">
-<p>Players<input type="text" name="name"> <input type="submit" value="Add"></p>
+  <h1>Hockey Player Data</h1>
+    <br>
+    <div>
+	<table align = "center">
+	{% for item in data %}
+	
+	<tr>
+	    {% for i in item %}
+	    <td>{{i}}</td>
+	    {% endfor %}
+	</tr>
+	
+	{% endfor %}
+	
+	</table>
+    </div>
+   </head> 
+  <br>
+<form method="GET" action="/years">
+<p><a href="years">Go to Team Years Established</a></p>
 </form>
-
+<br>
+<form method ="GET" action="/info">
+<p><a href="info">Go to Team Information</a></p>
+</form>
+<br>
+<form method ="GET" action="/arenas">
+<p><a href="arenas">Team Arena Information</a></p>
+</form>
+<br>
+<p><a href="home">Back to Homepage</a></p>
+<br>
+<form method="POST" action="/hometown">
+<p>Search for Player by Hometown: <input type="text" name="name"> <input type="submit" value="Search"></p>
+</form>
+<br>
+<form method = "POST" action="/conference">
+<p>Search for Player by Conference: <input type="text" name="name"> <input type="submit" value="Search"></p>
+</form>
+<br>
+<form method = "POST" action="/team">
+<p> Search for Player by Team: <input type="text" name="name"> <input type="submit" value="Search"></p>
+</form>
+<p><a href="another">Add Addresses to be Displayed</a></p>
 </body>
 
 

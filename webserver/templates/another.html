@@ -1,1 +1,53 @@
-hello, I am another file!
+<html>
+  <head>
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <style>
+
+      h1, p {
+        text-align: center;
+      } 
+
+      table, td, th {
+        border: 1px solid #000000;
+        text-align: left;
+      }
+
+      table {
+        border-collapse: collapse;
+        width: 50%;
+      }
+
+      th, td {
+        padding: 8px;
+      }
+    </style>
+  </head>
+
+<body>
+  <h1>Address Information</h1>
+  <br>
+    <table align = "center">
+    {% for item in data %}
+    
+    <tr>
+      {% for i in item %}
+      <td>{{i}}</td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+
+    </table>
+  <br>
+<form method = "POST" action="/another">
+<p>Name of new city: <input type="text" name="name"> <input type="submit" value="Add"></p>
+</form>
+<br>
+<p><a href="home">Back to Homepage</a></p>
+
+</body>
+
+</html>
+
+
